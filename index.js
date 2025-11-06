@@ -1,10 +1,22 @@
 const express = require('express')
 // 使用 morgan 中间件
 const morgan = require('morgan')
+// 使用cors中间件
+const cors = require('cors')
 const app = express()
 
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(cors())
+app.use(express.static('dist'))
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';"
+  );
+  next();
+});
 
 morgan.token('body', function getId(req) {
     return JSON.stringify(req.body)
@@ -33,6 +45,10 @@ let persons = [
       "number": "39-23-6423122"
     }
 ]
+
+app.get('/', (req, res) => {
+  res.status(200).end()
+})
 
 // 获得info
 app.get('/info', (request, response) => {
@@ -97,7 +113,7 @@ app.post('/api/persons', (request, response) => {
     response.json(persons)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
