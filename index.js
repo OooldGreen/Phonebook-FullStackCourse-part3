@@ -8,7 +8,11 @@ const app = express()
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
-app.use(express.static('dist'))
+app.use(express.static(path.join(__dirname, 'dist')))
+
+app.get('*', (request, response) => {
+    response.sendFile(path.join(__dirname, 'dist', 'index.html'))
+})
 
 app.use((req, res, next) => {
   res.setHeader(
