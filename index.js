@@ -46,13 +46,15 @@ app.get('/', (req, res) => {
 
 // 获得info
 app.get('/info', (request, response) => {
-    const len = persons.length
-    const time = new Date
+    // const len = persons.length
+    // const time = new Date
+    const len = Person.countDocuments
+    const time = new Date()
 
-    response.send(`
-        <p>Phonebook has infor for ${len} people</p>
-        <p>${time}</p>
-    `)
+    response.json({
+        'message': 'Phonebook has info for ${len} people',
+        'date': time.toISOString()
+    })
 })
 
 // 获得persons
@@ -80,11 +82,16 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 // 删除一个person
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
+app.delete(
+    '/api/persons/:id', (request, response) => {
+    Person.findByIdAndDelete(request.params.id).then(person => {
+        response.json(person)
+    })
+
+    // const id = Number(request.params.id)
+    // persons = persons.filter(person => person.id !== id)
     
-    response.status(200).end()
+    // response.status(200).end()
 })
 
 // 加入一个person
