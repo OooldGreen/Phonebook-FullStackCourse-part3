@@ -8,10 +8,10 @@ const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
 
+app.use(express.static('dist'))
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
-app.use(express.static('dist'))
 
 morgan.token('body', function getId(req) {
     return JSON.stringify(req.body)
@@ -60,15 +60,31 @@ app.get('/info', (request, response) => {
 // 获得persons
 app.get('/api/persons', (request, response) => {
     // response.json(persons)
+    
     Person.find({}).then(persons => {
-        response.json(persons)
+        if(persons) {
+            response.json(persons)
+        } else {
+            response.status(404).end()
+        }
     })
+    .catch(error => {
+        console.log(error)
+        response.status(500).end
+    })  
 })
 
 // 获得单个person明细
 app.get('/api/persons/:id', (request, response) => {
     Person.findById(request.params.id).then(person => {
-        response.json(person)
+        if(person) {
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
+    }).catch(error => {
+        console.log(error)
+        response.status(400).send({error: 'malformatted id'})
     })
 
     // const id = Number(request.params.id)
@@ -86,7 +102,7 @@ app.delete(
     '/api/persons/:id', (request, response) => {
     Person.findByIdAndDelete(request.params.id).then(person => {
         response.json(person)
-    })
+    }).catch(error => next(error))
 
     // const id = Number(request.params.id)
     // persons = persons.filter(person => person.id !== id)
@@ -133,6 +149,40 @@ app.post('/api/persons', (request, response) => {
 
     // response.json(persons)
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true}
+        .then(updatePerson => {
+            response.json(updatePerson)
+        })
+        .catch(error => next(error))
+    )
+})
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (err, request, response, next) => {
+    // handle error
+    console.log(err)
+
+    if(err.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id'})
+    }
+
+    next(err)
+
+}
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
