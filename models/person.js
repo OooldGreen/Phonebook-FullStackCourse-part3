@@ -15,8 +15,21 @@ mongoose.connect(url)
 
 // 设置存储数据的数据类型
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+        type: String,
+        minLength: 5,
+        required: true
+    },
+    number: {
+        type: String,
+        minLength: 8,
+        validate: {
+            validator: function(v) {
+                return /^\d{2,3}-\d+$/.test(v)
+            }
+        },
+        required: true
+    }
 })
 
 // 删除不想要展示在前端的数据

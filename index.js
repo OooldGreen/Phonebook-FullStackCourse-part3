@@ -111,12 +111,16 @@ app.delete(
 })
 
 // 加入一个person
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
-    // console.log(body.name)
+    console.log(body)
 
     if(body.name === undefined) {
-        return response.status(400).json({error: 'content missing'})
+        return response.status(400).json({error: 'name missing'})
+    }
+
+    if(body.number === undefined) {
+        return response.status(400).json({error: 'unvalid number'})
     }
 
     const person = new Person({
@@ -124,9 +128,11 @@ app.post('/api/persons', (request, response) => {
         number: body.number
     })
 
-    person.save().then(savedPerson => {
+    person.save()
+     .then(savedPerson => {
         response.json(savedPerson)
-    })
+     })
+     .catch(error => next(error))
 
     // if(!body.name || !body.number) {
     //     return response.status(400).json({
@@ -171,15 +177,19 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const errorHandler = (err, request, response, next) => {
+const errorHandler = (error, request, response, next) => {
     // handle error
-    console.log(err)
+    console.log(error)
 
-    if(err.name === 'CastError') {
+    if(error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id'})
     }
 
-    next(err)
+    if(error.name === 'ValidationError') {
+        return response.status(400).json({error: error.message})
+    }
+
+    next(error)
 
 }
 
