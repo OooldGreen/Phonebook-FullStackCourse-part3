@@ -52,7 +52,7 @@ app.get('/info', (request, response) => {
     const time = new Date()
 
     response.json({
-        'message': 'Phonebook has info for ${len} people',
+        'message': `Phonebook has info for ${len} people`,
         'date': time.toISOString()
     })
 })
