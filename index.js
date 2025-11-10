@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 app.get('/info', (request, response) => {
     // const len = persons.length
     // const time = new Date
-    const len = Person.countDocuments
+    const len = Person.length
     const time = new Date()
 
     response.json({
