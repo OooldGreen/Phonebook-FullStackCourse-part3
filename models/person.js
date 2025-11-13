@@ -1,19 +1,17 @@
-// 使用 mongoDB 数据库
+// 设置 mongoDB 数据库数据类型
 const mongoose = require('mongoose')
-
-const url = process.env.MONGODB_URL
+// const url = process.env.MONGODB_URL
 
 // console.log('connection to', url)
 
-mongoose.connect(url)
-  .then(() => {
-    console.log('connected to MongoDB')
-  })
-  .catch(error => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
+// mongoose.connect(url)
+//   .then(() => {
+//     console.log('connected to MongoDB')
+//   })
+//   .catch(error => {
+//     console.log('error connecting to MongoDB:', error.message)
+//   })
 
-// 设置存储数据的数据类型
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
